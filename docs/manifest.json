@@ -1,0 +1,299 @@
+{
+  "pages": [
+    {
+      "id": "16121964",
+      "title": "GenAI Home",
+      "path": "index.md",
+      "depth": 0
+    },
+    {
+      "id": "22806530",
+      "title": "Design Goal \u2014 AI Agents & Workflow Engine Integration",
+      "path": "architecture-and-design-genai-lunaya-flow/design-goal-ai-agents-workflow-engine-integration.md",
+      "depth": 1
+    },
+    {
+      "id": "21397535",
+      "title": "Events and NATS Topics \u2014 GenAI",
+      "path": "architecture-and-design-genai-lunaya-flow/events-and-nats-topics-genai.md",
+      "depth": 1
+    },
+    {
+      "id": "18317314",
+      "title": "Architecture and Design \u2014 GenAI / Lunaya Flow",
+      "path": "architecture-and-design-genai-lunaya-flow/index.md",
+      "depth": 1
+    },
+    {
+      "id": "23592968",
+      "title": "Phase 1 \u2014 Agent-In-Pod checklist & runbook",
+      "path": "architecture-and-design-genai-lunaya-flow/phase-1-agent-in-pod-checklist-runbook.md",
+      "depth": 1
+    },
+    {
+      "id": "20054190",
+      "title": "Product Workflows & Actions \u2014 BFF GUI Integration Guide",
+      "path": "architecture-and-design-genai-lunaya-flow/product-workflows-actions-bff-gui-integration-guide.md",
+      "depth": 1
+    },
+    {
+      "id": "21823491",
+      "title": "Tenant Isolation Inventory \u2014 GenAI BFF (FND-06)",
+      "path": "architecture-and-design-genai-lunaya-flow/tenant-isolation-inventory-genai-bff-fnd-06.md",
+      "depth": 1
+    },
+    {
+      "id": "18415660",
+      "title": "Webhooks and Event Bus \u2014 GenAI BFF",
+      "path": "architecture-and-design-genai-lunaya-flow/webhooks-and-event-bus-genai-bff.md",
+      "depth": 1
+    },
+    {
+      "id": "18972673",
+      "title": "Workflow Actions \u2014 Reference TEST",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference-test.md",
+      "depth": 1
+    },
+    {
+      "id": "18972690",
+      "title": "Action: Add",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-add.md",
+      "depth": 2
+    },
+    {
+      "id": "19005441",
+      "title": "Action: Aggregate",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-aggregate.md",
+      "depth": 2
+    },
+    {
+      "id": "19038209",
+      "title": "Action: Branch",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-branch.md",
+      "depth": 2
+    },
+    {
+      "id": "19070977",
+      "title": "Action: Code",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-code.md",
+      "depth": 2
+    },
+    {
+      "id": "19005458",
+      "title": "Action: CompareDatasets",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-comparedatasets.md",
+      "depth": 2
+    },
+    {
+      "id": "19038226",
+      "title": "Action: Compression",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-compression.md",
+      "depth": 2
+    },
+    {
+      "id": "19038243",
+      "title": "Action: Crypto",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-crypto.md",
+      "depth": 2
+    },
+    {
+      "id": "19005475",
+      "title": "Action: DateTime",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-datetime.md",
+      "depth": 2
+    },
+    {
+      "id": "18939924",
+      "title": "Action: DebugHelper",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-debughelper.md",
+      "depth": 2
+    },
+    {
+      "id": "19038260",
+      "title": "Action: Echo",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-echo.md",
+      "depth": 2
+    },
+    {
+      "id": "19005492",
+      "title": "Action: ExecuteWorkflow",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-executeworkflow.md",
+      "depth": 2
+    },
+    {
+      "id": "19038277",
+      "title": "Action: FileStorage",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-filestorage.md",
+      "depth": 2
+    },
+    {
+      "id": "18939941",
+      "title": "Action: Filter",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-filter.md",
+      "depth": 2
+    },
+    {
+      "id": "19070994",
+      "title": "Action: HTML",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-html.md",
+      "depth": 2
+    },
+    {
+      "id": "18972707",
+      "title": "Action: HttpRequest",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-httprequest.md",
+      "depth": 2
+    },
+    {
+      "id": "18972724",
+      "title": "Action: ItemLists",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-itemlists.md",
+      "depth": 2
+    },
+    {
+      "id": "19005509",
+      "title": "Action: JWT",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-jwt.md",
+      "depth": 2
+    },
+    {
+      "id": "19038294",
+      "title": "Action: Limit",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-limit.md",
+      "depth": 2
+    },
+    {
+      "id": "19038311",
+      "title": "Action: Markdown",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-markdown.md",
+      "depth": 2
+    },
+    {
+      "id": "19103745",
+      "title": "Action: Merge",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-merge.md",
+      "depth": 2
+    },
+    {
+      "id": "18972741",
+      "title": "Action: Mul",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-mul.md",
+      "depth": 2
+    },
+    {
+      "id": "19103762",
+      "title": "Action: NoOp",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-noop.md",
+      "depth": 2
+    },
+    {
+      "id": "19005526",
+      "title": "Action: RemoveDuplicates",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-removeduplicates.md",
+      "depth": 2
+    },
+    {
+      "id": "18972758",
+      "title": "Action: RenameKeys",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-renamekeys.md",
+      "depth": 2
+    },
+    {
+      "id": "18939958",
+      "title": "Action: Set",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-set.md",
+      "depth": 2
+    },
+    {
+      "id": "21397505",
+      "title": "Action: SetEnv",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-setenv.md",
+      "depth": 2
+    },
+    {
+      "id": "19038328",
+      "title": "Action: Sort",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-sort.md",
+      "depth": 2
+    },
+    {
+      "id": "19071011",
+      "title": "Action: SplitInBatches",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-splitinbatches.md",
+      "depth": 2
+    },
+    {
+      "id": "18939975",
+      "title": "Action: SplitOut",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-splitout.md",
+      "depth": 2
+    },
+    {
+      "id": "19071028",
+      "title": "Action: StopAndError",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-stopanderror.md",
+      "depth": 2
+    },
+    {
+      "id": "19071045",
+      "title": "Action: Summarize",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-summarize.md",
+      "depth": 2
+    },
+    {
+      "id": "18939992",
+      "title": "Action: Totp",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-totp.md",
+      "depth": 2
+    },
+    {
+      "id": "19038345",
+      "title": "Action: Wait",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-wait.md",
+      "depth": 2
+    },
+    {
+      "id": "18940009",
+      "title": "Action: XML",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/action-xml.md",
+      "depth": 2
+    },
+    {
+      "id": "18939906",
+      "title": "Workflow Actions \u2014 Reference",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-actions-reference/index.md",
+      "depth": 2
+    },
+    {
+      "id": "20480011",
+      "title": "Workflow Debug \u2014 Execute to Node",
+      "path": "architecture-and-design-genai-lunaya-flow/workflow-debug-execute-to-node.md",
+      "depth": 1
+    },
+    {
+      "id": "21790723",
+      "title": "Workforce OS Foundations \u2014 Durable Store, Tenancy & Organization",
+      "path": "architecture-and-design-genai-lunaya-flow/workforce-os-foundations-durable-store-tenancy-organization.md",
+      "depth": 1
+    },
+    {
+      "id": "21397571",
+      "title": "Goal \u2014 Genius Workforce OS",
+      "path": "goal-genius-workforce-os/index.md",
+      "depth": 1
+    },
+    {
+      "id": "21397616",
+      "title": "Workitems Dependency Graph",
+      "path": "goal-genius-workforce-os/workitems-dependency-graph.md",
+      "depth": 1
+    },
+    {
+      "id": "20512773",
+      "title": "AI Operating System \u2014 Initial Design (Google Doc source)",
+      "path": "initial-design/ai-operating-system-initial-design-google-doc-source.md",
+      "depth": 1
+    }
+  ],
+  "errors": []
+}
