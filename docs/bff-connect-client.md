@@ -2,7 +2,7 @@
 
 The Genius AI browser/API surface is a **ConnectRPC** BFF. Service contracts live in this repo under [`proto/genius/`](../proto/genius/) (snapshot of the product protos). Candidates should generate typed clients with **Buf** — do **not** hand-roll `fetch` to `/genius.../Method` paths.
 
-BFF Staging URL: `https://web.geniusai.io`
+BFF Staging URL: `https://web.geniusai.io`  
 Protocol for browsers: **Connect over HTTP/1.1 JSON** (`@connectrpc/connect-web`), not raw gRPC.
 
 ## What’s in `proto/`
