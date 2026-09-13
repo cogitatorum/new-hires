@@ -20,6 +20,7 @@ This repository is the briefing pack for frontend take-home assignments: **real 
 
 ## Docs contents
 
+- [Genius BFF ConnectRPC — generate a client](docs/bff-connect-client.md)
 - [GenAI Home](docs/index.md)
   - [Design Goal — AI Agents & Workflow Engine Integration](docs/architecture-and-design-genai-lunaya-flow/design-goal-ai-agents-workflow-engine-integration.md)
   - [Events and NATS Topics — GenAI](docs/architecture-and-design-genai-lunaya-flow/events-and-nats-topics-genai.md)
