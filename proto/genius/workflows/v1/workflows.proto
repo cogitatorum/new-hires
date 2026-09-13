@@ -1,0 +1,242 @@
+syntax = "proto3";
+
+package genius.workflows.v1;
+
+import "genius/common/v1/common.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+enum NodeKind {
+  NODE_KIND_UNSPECIFIED = 0;
+  NODE_KIND_TRIGGER = 1;
+  NODE_KIND_CONDITION = 2;
+  NODE_KIND_AI = 3;
+  NODE_KIND_HUMAN = 4;
+  NODE_KIND_APPROVAL = 5;
+  NODE_KIND_ACTION = 6;
+  NODE_KIND_END = 7;
+  // Dedicated branch (If/Switch). Compiles to the Branch action + labeled edges.
+  NODE_KIND_BRANCH = 8;
+}
+
+enum WorkflowPublishState {
+  WORKFLOW_PUBLISH_STATE_UNSPECIFIED = 0;
+  WORKFLOW_PUBLISH_STATE_DRAFT = 1;
+  WORKFLOW_PUBLISH_STATE_PUBLISHED = 2;
+}
+
+enum ProductRunStatus {
+  PRODUCT_RUN_STATUS_UNSPECIFIED = 0;
+  PRODUCT_RUN_STATUS_CREATED = 1;
+  PRODUCT_RUN_STATUS_RUNNING = 2;
+  PRODUCT_RUN_STATUS_FINISHED = 3;
+  PRODUCT_RUN_STATUS_FAILED = 4;
+}
+
+message WorkflowNode {
+  string id = 1;
+  NodeKind kind = 2;
+  string title = 3;
+  string handler = 4;
+  google.protobuf.Struct config = 5;
+}
+
+message WorkflowEdge {
+  string from_node = 1;
+  string to_node = 2;
+  // Branch case label: "true"/"false" for If, or Switch case id. Empty = unconditional.
+  string label = 3;
+}
+
+message WorkflowStats {
+  int64 runs = 1;
+  int64 active = 2;
+  int32 success_percent = 3;
+}
+
+message ProductWorkflow {
+  string id = 1;
+  string name = 2;
+  string trigger_summary = 3;
+  repeated WorkflowNode nodes = 4;
+  repeated WorkflowEdge edges = 5;
+  string runtime_def_id = 6;
+  WorkflowPublishState state = 7;
+  WorkflowStats stats = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message ProductWorkflowRun {
+  string id = 1;
+  string workflow_id = 2;
+  ProductRunStatus status = 3;
+  string runtime_run_id = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+message CreateWorkflowRequest {
+  string name = 1;
+  string trigger_summary = 2;
+  repeated WorkflowNode nodes = 3;
+  repeated WorkflowEdge edges = 4;
+}
+
+message GetWorkflowRequest {
+  string id = 1;
+}
+
+message ListWorkflowsRequest {
+  genius.common.v1.PageRequest page = 1;
+}
+
+message ListWorkflowsResponse {
+  repeated ProductWorkflow workflows = 1;
+  genius.common.v1.PageResponse page = 2;
+}
+
+message UpdateWorkflowRequest {
+  string id = 1;
+  string trigger_summary = 2;
+  repeated WorkflowNode nodes = 3;
+  repeated WorkflowEdge edges = 4;
+}
+
+message RenameWorkflowRequest {
+  string id = 1;
+  string name = 2;
+}
+
+message DuplicateWorkflowRequest {
+  string id = 1;
+  string name = 2;
+}
+
+message DeleteWorkflowRequest {
+  string id = 1;
+}
+
+message DeleteWorkflowResponse {}
+
+message PublishWorkflowRequest {
+  string id = 1;
+}
+
+message GetWorkflowStatsRequest {
+  string id = 1;
+}
+
+message BindRuntimeDefRequest {
+  string id = 1;
+  string runtime_def_id = 2;
+}
+
+message StartRunRequest {
+  string workflow_id = 1;
+}
+
+message GetRunRequest {
+  string id = 1;
+}
+
+message ListRunsRequest {
+  string workflow_id = 1;
+  genius.common.v1.PageRequest page = 2;
+}
+
+message ListRunsResponse {
+  repeated ProductWorkflowRun runs = 1;
+  genius.common.v1.PageResponse page = 2;
+}
+
+// Palette / handler catalog for the canvas.
+// input_schema / output_schema are JSON Schema objects (google.protobuf.Struct),
+// same shape as genius.runtime.v1.RuntimeAction — never stringified JSON.
+message NodeHandlerDescriptor {
+  string handler = 1;
+  NodeKind kind = 2;
+  string title = 3;
+  string group = 4;
+  string description = 5;
+  reserved 6; // was config_schema_json
+  bool executable = 7;
+  google.protobuf.Struct input_schema = 8;
+  google.protobuf.Struct output_schema = 9;
+}
+
+message ListNodeHandlersRequest {}
+
+message ListNodeHandlersResponse {
+  repeated NodeHandlerDescriptor handlers = 1;
+}
+
+// PreviewCompile compiles the current canvas without publishing or creating a runtime def.
+message PreviewCompileRequest {
+  string workflow_id = 1;
+}
+
+message PreviewCompileStep {
+  string node_id = 1;
+  string step_id = 2;
+  string action = 3;
+  string name = 4;
+  repeated string depends_on = 5;
+}
+
+message PreviewCompileResponse {
+  repeated PreviewCompileStep steps = 1;
+}
+
+// ExecuteToNode compiles the canvas (no PUBLISH), creates an ephemeral runtime def,
+// and streams a run-to-here debug execution for node_id and its ancestors.
+message ExecuteToNodeRequest {
+  string workflow_id = 1;
+  string node_id = 2;
+  // Optional pin data keyed by canvas node id (same as compiled step id).
+  map<string, google.protobuf.Struct> pinned_outputs = 3;
+}
+
+message ExecuteToNodeEvent {
+  string kind = 1;
+  string run_id = 2;
+  string runtime_def_id = 3;
+  string node_id = 4;
+  string step_id = 5;
+  string step_name = 6;
+  string action = 7;
+  string step_status = 8;
+  google.protobuf.Struct output = 9;
+  string error = 10;
+  bool pinned = 11;
+}
+
+// ResolveNodeBindings dry-resolves a node's input JSON from optional upstream pins
+// (no container execution).
+message ResolveNodeBindingsRequest {
+  string workflow_id = 1;
+  string node_id = 2;
+  map<string, google.protobuf.Struct> upstream_outputs = 3;
+}
+
+message ResolveNodeBindingsResponse {
+  google.protobuf.Struct input = 1;
+}
+
+service ProductWorkflows {
+  rpc CreateWorkflow(CreateWorkflowRequest) returns (ProductWorkflow);
+  rpc GetWorkflow(GetWorkflowRequest) returns (ProductWorkflow);
+  rpc ListWorkflows(ListWorkflowsRequest) returns (ListWorkflowsResponse);
+  rpc UpdateWorkflow(UpdateWorkflowRequest) returns (ProductWorkflow);
+  rpc RenameWorkflow(RenameWorkflowRequest) returns (ProductWorkflow);
+  rpc DuplicateWorkflow(DuplicateWorkflowRequest) returns (ProductWorkflow);
+  rpc DeleteWorkflow(DeleteWorkflowRequest) returns (DeleteWorkflowResponse);
+  rpc PublishWorkflow(PublishWorkflowRequest) returns (ProductWorkflow);
+  rpc GetWorkflowStats(GetWorkflowStatsRequest) returns (WorkflowStats);
+  rpc BindRuntimeDef(BindRuntimeDefRequest) returns (ProductWorkflow);
+  rpc StartRun(StartRunRequest) returns (ProductWorkflowRun);
+  rpc GetRun(GetRunRequest) returns (ProductWorkflowRun);
+  rpc ListRuns(ListRunsRequest) returns (ListRunsResponse);
+  rpc ListNodeHandlers(ListNodeHandlersRequest) returns (ListNodeHandlersResponse);
+  rpc PreviewCompile(PreviewCompileRequest) returns (PreviewCompileResponse);
+  rpc ExecuteToNode(ExecuteToNodeRequest) returns (stream ExecuteToNodeEvent);
+  rpc ResolveNodeBindings(ResolveNodeBindingsRequest) returns (ResolveNodeBindingsResponse);
+}

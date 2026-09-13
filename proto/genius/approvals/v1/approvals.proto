@@ -1,0 +1,116 @@
+syntax = "proto3";
+
+package genius.approvals.v1;
+
+import "genius/common/v1/common.proto";
+import "google/protobuf/timestamp.proto";
+
+enum ApprovalStatus {
+  APPROVAL_STATUS_UNSPECIFIED = 0;
+  APPROVAL_STATUS_PENDING = 1;
+  APPROVAL_STATUS_APPROVED = 2;
+  APPROVAL_STATUS_REJECTED = 3;
+}
+
+enum ApprovalDecision {
+  APPROVAL_DECISION_UNSPECIFIED = 0;
+  APPROVAL_DECISION_APPROVE = 1;
+  APPROVAL_DECISION_REJECT = 2;
+}
+
+message Approval {
+  string id = 1;
+  string display_id = 2;
+  string title = 3;
+  string agent_id = 4;
+  string policy_rule_id = 5;
+  string work_item_id = 6;
+  bool high_priority = 7;
+  ApprovalStatus status = 8;
+  string decided_by_user_id = 9;
+  string note = 10;
+  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp decided_at = 12;
+}
+
+message ApprovalPolicy {
+  string id = 1;
+  string key = 2;
+  string title = 3;
+  string description = 4;
+  string match_expression = 5;
+  bool enabled = 6;
+  bool high_priority_default = 7;
+}
+
+message ListPendingApprovalsRequest {
+  genius.common.v1.PageRequest page = 1;
+}
+
+message ListPendingApprovalsResponse {
+  repeated Approval approvals = 1;
+  genius.common.v1.PageResponse page = 2;
+}
+
+message GetApprovalRequest {
+  string id = 1;
+}
+
+message DecideApprovalRequest {
+  string id = 1;
+  ApprovalDecision decision = 2;
+  string note = 3;
+}
+
+message ListApprovalHistoryRequest {
+  genius.common.v1.PageRequest page = 1;
+}
+
+message ListApprovalHistoryResponse {
+  repeated Approval approvals = 1;
+  genius.common.v1.PageResponse page = 2;
+}
+
+message ApprovalStats {
+  int64 pending = 1;
+  int64 high_priority = 2;
+  int64 approved_today = 3;
+  int64 rejected_today = 4;
+}
+
+message GetApprovalStatsRequest {}
+
+message ListApprovalPoliciesRequest {}
+
+message ListApprovalPoliciesResponse {
+  repeated ApprovalPolicy policies = 1;
+}
+
+message SetApprovalPolicyEnabledRequest {
+  string id = 1;
+  bool enabled = 2;
+}
+
+message UpsertApprovalPolicyRequest {
+  string id = 1; // empty = create
+  string key = 2;
+  string title = 3;
+  string description = 4;
+  string match_expression = 5;
+  bool enabled = 6;
+  bool high_priority_default = 7;
+}
+
+service Approvals {
+  rpc ListPendingApprovals(ListPendingApprovalsRequest) returns (ListPendingApprovalsResponse);
+  rpc GetApproval(GetApprovalRequest) returns (Approval);
+  rpc DecideApproval(DecideApprovalRequest) returns (Approval);
+  rpc ListApprovalHistory(ListApprovalHistoryRequest) returns (ListApprovalHistoryResponse);
+  rpc GetApprovalStats(GetApprovalStatsRequest) returns (ApprovalStats);
+}
+
+service Policies {
+  rpc ListApprovalPolicies(ListApprovalPoliciesRequest) returns (ListApprovalPoliciesResponse);
+  rpc SetApprovalPolicyEnabled(SetApprovalPolicyEnabledRequest) returns (ApprovalPolicy);
+  rpc UpsertApprovalPolicy(UpsertApprovalPolicyRequest) returns (ApprovalPolicy);
+}

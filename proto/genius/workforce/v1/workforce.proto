@@ -1,0 +1,252 @@
+syntax = "proto3";
+
+package genius.workforce.v1;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+message Department {
+  string id = 1;
+  string org_id = 2;
+  string parent_id = 3;
+  string key = 4;
+  string name = 5;
+  string state = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+message Actor {
+  string id = 1;
+  string org_id = 2;
+  string type = 3;
+  string display_name = 4;
+  string user_id = 5;
+  string status = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+message Position {
+  string id = 1;
+  string org_id = 2;
+  string department_id = 3;
+  string key = 4;
+  string title = 5;
+  string manager_position_id = 6;
+  string state = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+  string active_actor_id = 10;
+}
+
+message PositionAssignment {
+  string id = 1;
+  string org_id = 2;
+  string position_id = 3;
+  string actor_id = 4;
+  google.protobuf.Timestamp effective_from = 5;
+  google.protobuf.Timestamp effective_to = 6;
+  string state = 7;
+  google.protobuf.Timestamp created_at = 8;
+}
+
+message Responsibility {
+  string id = 1;
+  string org_id = 2;
+  string contract_version_id = 3;
+  string key = 4;
+  string outcome = 5;
+  string sla = 6;
+  int32 autonomy_level = 7;
+  string work_type = 8;
+  string verification_policy = 9;
+  int32 baseline_minutes = 10;
+}
+
+message RoleContractVersion {
+  string id = 1;
+  string org_id = 2;
+  string contract_id = 3;
+  int32 version = 4;
+  string display_name = 5;
+  string mission = 6;
+  google.protobuf.Struct authority = 7;
+  google.protobuf.Struct escalation = 8;
+  google.protobuf.ListValue performance = 9;
+  google.protobuf.Timestamp published_at = 10;
+  google.protobuf.Timestamp created_at = 11;
+  repeated Responsibility responsibilities = 12;
+}
+
+message RoleContract {
+  string id = 1;
+  string org_id = 2;
+  string position_id = 3;
+  string key = 4;
+  int32 current_version = 5;
+  string state = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+  RoleContractVersion current_version_detail = 9;
+}
+
+message ListDepartmentsRequest {}
+
+message ListDepartmentsResponse {
+  repeated Department departments = 1;
+}
+
+message GetDepartmentRequest {
+  string id = 1;
+}
+
+message CreateDepartmentRequest {
+  string parent_id = 1;
+  string key = 2;
+  string name = 3;
+  string state = 4;
+}
+
+message UpdateDepartmentRequest {
+  string id = 1;
+  string parent_id = 2;
+  string key = 3;
+  string name = 4;
+  string state = 5;
+}
+
+message ListPositionsRequest {}
+
+message ListPositionsResponse {
+  repeated Position positions = 1;
+}
+
+message GetPositionRequest {
+  string id = 1;
+}
+
+message CreatePositionRequest {
+  string department_id = 1;
+  string key = 2;
+  string title = 3;
+  string manager_position_id = 4;
+  string state = 5;
+}
+
+message UpdatePositionRequest {
+  string id = 1;
+  string department_id = 2;
+  string key = 3;
+  string title = 4;
+  string manager_position_id = 5;
+  string state = 6;
+}
+
+message AssignPositionRequest {
+  string position_id = 1;
+  string actor_id = 2;
+  google.protobuf.Timestamp effective_from = 3;
+}
+
+message ListPositionAssignmentsRequest {
+  string position_id = 1;
+}
+
+message ListPositionAssignmentsResponse {
+  repeated PositionAssignment assignments = 1;
+}
+
+message ListActorsRequest {}
+
+message ListActorsResponse {
+  repeated Actor actors = 1;
+}
+
+message GetActorRequest {
+  string id = 1;
+}
+
+message CreateActorRequest {
+  string type = 1;
+  string display_name = 2;
+  string user_id = 3;
+}
+
+message UpdateActorRequest {
+  string id = 1;
+  string type = 2;
+  string display_name = 3;
+  string user_id = 4;
+}
+
+message PauseActorRequest {
+  string id = 1;
+}
+
+message ResumeActorRequest {
+  string id = 1;
+}
+
+message ListRoleContractsRequest {}
+
+message ListRoleContractsResponse {
+  repeated RoleContract contracts = 1;
+}
+
+message GetRoleContractRequest {
+  string id = 1;
+}
+
+message GetRoleContractByPositionRequest {
+  string position_id = 1;
+}
+
+message SaveRoleContractDraftRequest {
+  string contract_id = 1;
+  string position_id = 2;
+  string key = 3;
+  string display_name = 4;
+  string mission = 5;
+  google.protobuf.Struct authority = 6;
+  google.protobuf.Struct escalation = 7;
+  google.protobuf.ListValue performance = 8;
+  repeated Responsibility responsibilities = 9;
+}
+
+message PublishRoleContractRequest {
+  string contract_id = 1;
+}
+
+service Departments {
+  rpc ListDepartments(ListDepartmentsRequest) returns (ListDepartmentsResponse);
+  rpc GetDepartment(GetDepartmentRequest) returns (Department);
+  rpc CreateDepartment(CreateDepartmentRequest) returns (Department);
+  rpc UpdateDepartment(UpdateDepartmentRequest) returns (Department);
+}
+
+service Positions {
+  rpc ListPositions(ListPositionsRequest) returns (ListPositionsResponse);
+  rpc GetPosition(GetPositionRequest) returns (Position);
+  rpc CreatePosition(CreatePositionRequest) returns (Position);
+  rpc UpdatePosition(UpdatePositionRequest) returns (Position);
+  rpc AssignPosition(AssignPositionRequest) returns (PositionAssignment);
+  rpc ListPositionAssignments(ListPositionAssignmentsRequest) returns (ListPositionAssignmentsResponse);
+}
+
+service Actors {
+  rpc ListActors(ListActorsRequest) returns (ListActorsResponse);
+  rpc GetActor(GetActorRequest) returns (Actor);
+  rpc CreateActor(CreateActorRequest) returns (Actor);
+  rpc UpdateActor(UpdateActorRequest) returns (Actor);
+  rpc PauseActor(PauseActorRequest) returns (Actor);
+  rpc ResumeActor(ResumeActorRequest) returns (Actor);
+}
+
+service RoleContracts {
+  rpc ListRoleContracts(ListRoleContractsRequest) returns (ListRoleContractsResponse);
+  rpc GetRoleContract(GetRoleContractRequest) returns (RoleContract);
+  rpc GetRoleContractByPosition(GetRoleContractByPositionRequest) returns (RoleContract);
+  rpc SaveRoleContractDraft(SaveRoleContractDraftRequest) returns (RoleContract);
+  rpc PublishRoleContract(PublishRoleContractRequest) returns (RoleContract);
+}

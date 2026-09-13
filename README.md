@@ -1,18 +1,24 @@
 # Genius AI — frontend take-home briefing pack
 
-This directory mirrors our **Confluence space G (Genius AI)** docs as markdown,
-exported for take-home assignments so candidates work from the **real product context**
-instead of toy puzzles.
+This repository is the briefing pack for frontend take-home assignments: **real Genius AI product context** (Confluence docs + BFF ConnectRPC protos), not abstract toy challenges.
+
+## What’s included
+
+| Path | Purpose |
+|------|---------|
+| [`docs/`](docs/) | Confluence space **G** (Genius AI) as markdown |
+| [`docs/bff-connect-client.md`](docs/bff-connect-client.md) | How to generate and use a **ConnectRPC** TypeScript client |
+| [`proto/`](proto/) | Snapshot of Genius BFF `.proto` contracts (`genius.*.v1`) |
+| [`buf.yaml`](buf.yaml) / [`buf.gen.yaml`](buf.gen.yaml) | Buf module + Connect-ES codegen config |
 
 ## How to use
 
 1. Start at [`docs/index.md`](docs/index.md) (GenAI Home), then Architecture and Design, then the goal/design pages that match the assignment brief.
-2. Workflow **Action:** pages under `docs/architecture-and-design-genai-lunaya-flow/workflow-actions-reference/` are API/reference detail — skim unless the brief points you there.
-3. Treat links to `geniusaidubai.atlassian.net` as the canonical source; this pack may lag slightly.
+2. Read [`docs/bff-connect-client.md`](docs/bff-connect-client.md), then run `npx buf dep update && npx buf generate` from this repo root to emit typed clients under `src/gen/`.
+3. Workflow **Action:** pages under `docs/architecture-and-design-genai-lunaya-flow/workflow-actions-reference/` are API/reference detail — skim unless the brief points you there.
+4. Treat links to `geniusaidubai.atlassian.net` as the canonical wiki source; this pack may lag slightly.
 
-Markdown was exported from live Confluence (same page set as the PDF pack in `../docs/confluence-pdfs/`) for readable take-home material.
-
-## Contents
+## Docs contents
 
 - [GenAI Home](docs/index.md)
   - [Design Goal — AI Agents & Workflow Engine Integration](docs/architecture-and-design-genai-lunaya-flow/design-goal-ai-agents-workflow-engine-integration.md)
@@ -63,8 +69,3 @@ Markdown was exported from live Confluence (same page set as the PDF pack in `..
   - [Goal — Genius Workforce OS](docs/goal-genius-workforce-os/index.md)
   - [Workitems Dependency Graph](docs/goal-genius-workforce-os/workitems-dependency-graph.md)
   - [AI Operating System — Initial Design (Google Doc source)](docs/initial-design/ai-operating-system-initial-design-google-doc-source.md)
-
-## Export stats
-
-- Pages written: **49**
-

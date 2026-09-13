@@ -1,0 +1,185 @@
+syntax = "proto3";
+
+package genius.iam.v1;
+
+import "genius/common/v1/common.proto";
+import "google/protobuf/timestamp.proto";
+
+message Organization {
+  string id = 1;
+  string name = 2;
+  string timezone = 3;
+  string default_currency = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+message User {
+  string id = 1;
+  string org_id = 2;
+  string email = 3;
+  string display_name = 4;
+  bool active = 5;
+  // Org role IDs (not seed names).
+  repeated string roles = 6;
+  google.protobuf.Timestamp created_at = 7;
+}
+
+message GetOrganizationRequest {}
+
+message UpdateOrganizationRequest {
+  string name = 1;
+  string timezone = 2;
+  string default_currency = 3;
+}
+
+message InviteUserRequest {
+  string email = 1;
+  string display_name = 2;
+  // Role IDs or names within the org. Empty = no roles.
+  repeated string roles = 3;
+  string temporary_password = 4;
+}
+
+message ListUsersRequest {
+  genius.common.v1.PageRequest page = 1;
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
+  genius.common.v1.PageResponse page = 2;
+}
+
+message GetUserRequest {
+  string id = 1;
+}
+
+message UpdateUserRequest {
+  string id = 1;
+  string display_name = 2;
+  bool active = 3;
+}
+
+message DeactivateUserRequest {
+  string id = 1;
+}
+
+message DeactivateUserResponse {}
+
+message Role {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  // Validated dotted ACL paths (e.g. workflows.read, workflows.{id}.edit).
+  repeated string permissions = 4;
+  // Present when role was seeded from a template (owner/admin/…).
+  string seed_key = 5;
+}
+
+message ListRolesRequest {}
+
+message ListRolesResponse {
+  repeated Role roles = 1;
+}
+
+message CreateRoleRequest {
+  string name = 1;
+  string description = 2;
+  repeated string permissions = 3;
+}
+
+message UpdateRoleRequest {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  // Full replacement set; every path is validated before write.
+  repeated string permissions = 4;
+}
+
+message DeleteRoleRequest {
+  string id = 1;
+  bool force = 2;
+}
+
+message DeleteRoleResponse {}
+
+message SetUserRolesRequest {
+  string user_id = 1;
+  // Role IDs (or names resolved in-org). Empty clears all roles.
+  repeated string roles = 2;
+}
+
+message GrantResourceAccessRequest {
+  string user_id = 1;
+  string resource_type = 2;
+  string resource_id = 3;
+  repeated string actions = 4;
+}
+
+message GrantResourceAccessResponse {}
+
+message RevokeResourceAccessRequest {
+  string user_id = 1;
+  string resource_type = 2;
+  string resource_id = 3;
+  repeated string actions = 4;
+}
+
+message RevokeResourceAccessResponse {}
+
+message GrantPathsRequest {
+  string user_id = 1;
+  repeated string paths = 2;
+}
+
+message GrantPathsResponse {}
+
+message RevokePathsRequest {
+  string user_id = 1;
+  repeated string paths = 2;
+}
+
+message RevokePathsResponse {}
+
+// ResourceNode is one ACL catalog entry (replaces flat ResourceType).
+message ResourceNode {
+  string name = 1;
+  string description = 2;
+  repeated string actions = 3;
+  repeated string aliases = 4;
+  bool instance_addressable = 5;
+  repeated ResourceNode children = 6;
+}
+
+message GetResourceTreeRequest {}
+
+message GetResourceTreeResponse {
+  repeated ResourceNode roots = 1;
+  // Non-instance capability roots (iam, overview, …).
+  repeated ResourceNode capabilities = 2;
+}
+
+service Organizations {
+  rpc GetOrganization(GetOrganizationRequest) returns (Organization);
+  rpc UpdateOrganization(UpdateOrganizationRequest) returns (Organization);
+}
+
+service Users {
+  rpc InviteUser(InviteUserRequest) returns (User);
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  rpc GetUser(GetUserRequest) returns (User);
+  rpc UpdateUser(UpdateUserRequest) returns (User);
+  rpc DeactivateUser(DeactivateUserRequest) returns (DeactivateUserResponse);
+}
+
+service Roles {
+  rpc ListRoles(ListRolesRequest) returns (ListRolesResponse);
+  rpc CreateRole(CreateRoleRequest) returns (Role);
+  rpc UpdateRole(UpdateRoleRequest) returns (Role);
+  rpc DeleteRole(DeleteRoleRequest) returns (DeleteRoleResponse);
+  rpc GetResourceTree(GetResourceTreeRequest) returns (GetResourceTreeResponse);
+  rpc SetUserRoles(SetUserRolesRequest) returns (User);
+  rpc GrantResourceAccess(GrantResourceAccessRequest) returns (GrantResourceAccessResponse);
+  rpc RevokeResourceAccess(RevokeResourceAccessRequest) returns (RevokeResourceAccessResponse);
+  rpc GrantPaths(GrantPathsRequest) returns (GrantPathsResponse);
+  rpc RevokePaths(RevokePathsRequest) returns (RevokePathsResponse);
+}

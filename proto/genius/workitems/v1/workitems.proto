@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package genius.workitems.v1;
+
+import "genius/common/v1/common.proto";
+import "google/protobuf/timestamp.proto";
+
+enum WorkItemKind {
+  WORK_ITEM_KIND_UNSPECIFIED = 0;
+  WORK_ITEM_KIND_HUMAN = 1;
+  WORK_ITEM_KIND_AI = 2;
+  WORK_ITEM_KIND_WORKFLOW = 3;
+  WORK_ITEM_KIND_HUMAN_AI = 4;
+}
+
+enum WorkItemState {
+  WORK_ITEM_STATE_UNSPECIFIED = 0;
+  WORK_ITEM_STATE_QUEUED = 1;
+  WORK_ITEM_STATE_RUNNING = 2;
+  WORK_ITEM_STATE_BLOCKED = 3;
+  WORK_ITEM_STATE_DONE = 4;
+  WORK_ITEM_STATE_FAILED = 5;
+}
+
+message WorkItem {
+  string id = 1;
+  string display_id = 2;
+  string title = 3;
+  WorkItemKind kind = 4;
+  WorkItemState state = 5;
+  string decision_id = 6;
+  string product_workflow_id = 7;
+  string owner = 8;
+  string current_step_label = 9;
+  google.protobuf.Timestamp updated_at = 10;
+  google.protobuf.Timestamp created_at = 11;
+}
+
+message GetWorkItemRequest {
+  string id = 1;
+}
+
+message ListWorkItemsRequest {
+  WorkItemState state = 1;
+  genius.common.v1.PageRequest page = 2;
+}
+
+message ListWorkItemsResponse {
+  repeated WorkItem work_items = 1;
+  genius.common.v1.PageResponse page = 2;
+}
+
+message CreateWorkItemRequest {
+  string title = 1;
+  WorkItemKind kind = 2;
+  string decision_id = 3;
+  string product_workflow_id = 4;
+  string owner = 5;
+}
+
+message UpdateWorkItemRequest {
+  string id = 1;
+  string title = 2;
+  WorkItemState state = 3;
+  string owner = 4;
+  string current_step_label = 5;
+}
+
+message WorkItemStats {
+  int64 active = 1;
+  int64 running = 2;
+  int64 blocked = 3;
+  int64 completed_today = 4;
+}
+
+message GetWorkItemStatsRequest {}
+
+service WorkItems {
+  rpc GetWorkItem(GetWorkItemRequest) returns (WorkItem);
+  rpc ListWorkItems(ListWorkItemsRequest) returns (ListWorkItemsResponse);
+  rpc CreateWorkItem(CreateWorkItemRequest) returns (WorkItem);
+  rpc UpdateWorkItem(UpdateWorkItemRequest) returns (WorkItem);
+  rpc GetWorkItemStats(GetWorkItemStatsRequest) returns (WorkItemStats);
+}

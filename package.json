@@ -1,0 +1,30 @@
+{
+  "name": "genius-hire-briefing",
+  "version": "1.0.0",
+  "description": "This repository is the briefing pack for frontend take-home assignments: **real Genius AI product context** (Confluence docs + BFF ConnectRPC protos), not abstract toy challenges.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "generate": "buf dep update && buf generate"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.cog:cogitatorum/new-hires"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@bufbuild/buf": "^1.73.0",
+    "@bufbuild/protobuf": "^2.15.0",
+    "@bufbuild/protoc-gen-es": "^2.15.0"
+  },
+  "dependencies": {
+    "@connectrpc/connect": "^2.2.0",
+    "@connectrpc/connect-web": "^2.2.0"
+  },
+  "private": true
+}

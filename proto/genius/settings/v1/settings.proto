@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package genius.settings.v1;
+
+message NotificationChannel {
+  string id = 1;
+  string kind = 2; // email, slack, push, whatsapp, ...
+  string target = 3;
+  bool enabled = 4;
+}
+
+message NotificationSettings {
+  repeated NotificationChannel channels = 1;
+}
+
+message ScheduledJob {
+  string id = 1;
+  string name = 2;
+  string cron_or_time = 3;
+  string workflow_id = 4;
+  bool enabled = 5;
+}
+
+message EngineSettings {
+  bool auto_extract_decisions = 1;
+  bool auto_plan_execution = 2;
+  bool auto_start_workflows = 3;
+  bool risk_detection = 4;
+  string default_model = 5;
+  int32 min_confidence_auto_execute = 6;
+  repeated ScheduledJob scheduled_jobs = 7;
+}
+
+message GetEngineSettingsRequest {}
+
+message UpdateEngineSettingsRequest {
+  EngineSettings settings = 1;
+}
+
+message GetNotificationSettingsRequest {}
+
+message UpdateNotificationSettingsRequest {
+  NotificationSettings settings = 1;
+}
+
+service Settings {
+  rpc GetEngineSettings(GetEngineSettingsRequest) returns (EngineSettings);
+  rpc UpdateEngineSettings(UpdateEngineSettingsRequest) returns (EngineSettings);
+  rpc GetNotificationSettings(GetNotificationSettingsRequest) returns (NotificationSettings);
+  rpc UpdateNotificationSettings(UpdateNotificationSettingsRequest) returns (NotificationSettings);
+}

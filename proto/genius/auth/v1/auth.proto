@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package genius.auth.v1;
+
+import "genius/iam/v1/iam.proto";
+import "google/protobuf/timestamp.proto";
+
+message RegisterRequest {
+  string email = 1;
+  string password = 2;
+  string display_name = 3;
+  string organization_name = 4;
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+message LogoutRequest {
+  string refresh_token = 1;
+}
+
+message LogoutResponse {}
+
+message ChangePasswordRequest {
+  string current_password = 1;
+  string new_password = 2;
+}
+
+message ChangePasswordResponse {}
+
+message GetSessionRequest {}
+
+message AuthTokens {
+  string access_token = 1;
+  string refresh_token = 2;
+  google.protobuf.Timestamp access_expires_at = 3;
+  google.protobuf.Timestamp refresh_expires_at = 4;
+  Session session = 5;
+}
+
+message Session {
+  genius.iam.v1.User user = 1;
+  genius.iam.v1.Organization org = 2;
+  repeated string permissions = 3;
+  repeated string roles = 4;
+}
+
+service Auth {
+  rpc Register(RegisterRequest) returns (AuthTokens);
+  rpc Login(LoginRequest) returns (AuthTokens);
+  rpc RefreshToken(RefreshTokenRequest) returns (AuthTokens);
+  rpc Logout(LogoutRequest) returns (LogoutResponse);
+  rpc GetSession(GetSessionRequest) returns (Session);
+  rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
+}

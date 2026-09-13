@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package genius.decisions.v1;
+
+import "genius/common/v1/common.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+enum DecisionStatus {
+  DECISION_STATUS_UNSPECIFIED = 0;
+  DECISION_STATUS_PROPOSED = 1;
+  DECISION_STATUS_CONFIRMED = 2;
+  DECISION_STATUS_REJECTED = 3;
+  DECISION_STATUS_SUPERSEDED = 4;
+}
+
+message Decision {
+  string id = 1;
+  string display_id = 2;
+  string title = 3;
+  string description = 4;
+  string owner_user_id = 5;
+  string category = 6;
+  int32 confidence = 7;
+  bool approval_required = 8;
+  DecisionStatus status = 9;
+  string source_event_id = 10;
+  string source_label = 11;
+  google.protobuf.Struct attributes = 12;
+  google.protobuf.Timestamp created_at = 13;
+}
+
+message GetDecisionRequest {
+  string id = 1;
+}
+
+message ListDecisionsRequest {
+  string category = 1;
+  DecisionStatus status = 2;
+  genius.common.v1.PageRequest page = 3;
+}
+
+message ListDecisionsResponse {
+  repeated Decision decisions = 1;
+  genius.common.v1.PageResponse page = 2;
+}
+
+message ConfirmDecisionRequest {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+}
+
+message RejectDecisionRequest {
+  string id = 1;
+  string reason = 2;
+}
+
+message DecisionStats {
+  int64 total = 1;
+  int64 avg_confidence = 2;
+  int64 approval_required = 3;
+  int64 distinct_sources = 4;
+}
+
+message GetDecisionStatsRequest {}
+
+service Decisions {
+  rpc GetDecision(GetDecisionRequest) returns (Decision);
+  rpc ListDecisions(ListDecisionsRequest) returns (ListDecisionsResponse);
+  rpc ConfirmDecision(ConfirmDecisionRequest) returns (Decision);
+  rpc RejectDecision(RejectDecisionRequest) returns (Decision);
+  rpc GetDecisionStats(GetDecisionStatsRequest) returns (DecisionStats);
+}

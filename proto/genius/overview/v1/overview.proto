@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package genius.overview.v1;
+
+import "genius/agents/v1/agents.proto";
+import "genius/approvals/v1/approvals.proto";
+import "genius/decisions/v1/decisions.proto";
+import "genius/workitems/v1/workitems.proto";
+import "google/protobuf/timestamp.proto";
+
+message OverviewKpis {
+  int64 events_today = 1;
+  int64 decisions_captured = 2;
+  int64 active_work_items = 3;
+  int64 pending_approvals = 4;
+}
+
+message PipelineStage {
+  string id = 1;
+  string name = 2;
+  string detail = 3;
+}
+
+message PipelineStatus {
+  string id = 1;
+  string title = 2;
+  repeated PipelineStage stages = 3;
+  google.protobuf.Timestamp last_run_at = 4;
+  string last_run_ref = 5;
+}
+
+message OverviewSnapshot {
+  OverviewKpis kpis = 1;
+  repeated genius.decisions.v1.Decision recent_decisions = 2;
+  repeated genius.workitems.v1.WorkItem recent_work_items = 3;
+  repeated genius.agents.v1.Agent agents = 4;
+  repeated genius.approvals.v1.Approval pending_approvals = 5;
+  PipelineStatus highlighted_pipeline = 6;
+}
+
+message GetOverviewRequest {}
+
+message WatchOverviewRequest {
+  int32 interval_seconds = 1;
+}
+
+service Overview {
+  rpc GetOverview(GetOverviewRequest) returns (OverviewSnapshot);
+  rpc WatchOverview(WatchOverviewRequest) returns (stream OverviewSnapshot);
+}

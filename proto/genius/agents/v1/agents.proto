@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package genius.agents.v1;
+
+import "genius/common/v1/common.proto";
+import "google/protobuf/struct.proto";
+
+enum AgentHealth {
+  AGENT_HEALTH_UNSPECIFIED = 0;
+  AGENT_HEALTH_HEALTHY = 1;
+  AGENT_HEALTH_DEGRADED = 2;
+  AGENT_HEALTH_OFFLINE = 3;
+}
+
+message Agent {
+  string id = 1;
+  string name = 2;
+  string mission = 3;
+  repeated string skills = 4;
+  int32 max_concurrency = 5;
+  string default_model = 6;
+  AgentHealth health = 7;
+  google.protobuf.Struct config = 8;
+  int32 active_jobs = 9;
+}
+
+message AgentLoad {
+  string agent_id = 1;
+  int32 active_jobs = 2;
+  int32 max_concurrency = 3;
+}
+
+message ListAgentsRequest {
+  genius.common.v1.PageRequest page = 1;
+}
+
+message ListAgentsResponse {
+  repeated Agent agents = 1;
+  genius.common.v1.PageResponse page = 2;
+}
+
+message GetAgentRequest {
+  string id = 1;
+}
+
+message UpdateAgentRequest {
+  string id = 1;
+  string name = 2;
+  string mission = 3;
+  repeated string skills = 4;
+  int32 max_concurrency = 5;
+  string default_model = 6;
+  google.protobuf.Struct config = 7;
+}
+
+message GetAgentLoadRequest {
+  string id = 1;
+}
+
+message AgentFleetSnapshot {
+  repeated Agent agents = 1;
+  int64 total_active_jobs = 2;
+}
+
+message WatchAgentFleetRequest {}
+
+service Agents {
+  rpc ListAgents(ListAgentsRequest) returns (ListAgentsResponse);
+  rpc GetAgent(GetAgentRequest) returns (Agent);
+  rpc UpdateAgent(UpdateAgentRequest) returns (Agent);
+  rpc GetAgentLoad(GetAgentLoadRequest) returns (AgentLoad);
+  rpc WatchAgentFleet(WatchAgentFleetRequest) returns (stream AgentFleetSnapshot);
+}

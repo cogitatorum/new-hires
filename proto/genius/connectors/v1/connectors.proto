@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+package genius.connectors.v1;
+
+import "genius/common/v1/common.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+enum ConnectorStatus {
+  CONNECTOR_STATUS_UNSPECIFIED = 0;
+  CONNECTOR_STATUS_CONNECTED = 1;
+  CONNECTOR_STATUS_DISCONNECTED = 2;
+  CONNECTOR_STATUS_DEGRADED = 3;
+}
+
+message ConnectorStats {
+  int64 events_today = 1;
+  string rate = 2;
+  google.protobuf.Timestamp last_event_at = 3;
+}
+
+message Connector {
+  string id = 1;
+  string name = 2;
+  string category = 3;
+  ConnectorStatus status = 4;
+  string description = 5;
+  ConnectorStats stats = 6;
+  google.protobuf.Struct config = 7;
+}
+
+message ListConnectorsRequest {
+  genius.common.v1.PageRequest page = 1;
+}
+
+message ListConnectorsResponse {
+  repeated Connector connectors = 1;
+  genius.common.v1.PageResponse page = 2;
+}
+
+message GetConnectorRequest {
+  string id = 1;
+}
+
+message EnableConnectorRequest {
+  string id = 1;
+}
+
+message DisableConnectorRequest {
+  string id = 1;
+}
+
+message UpsertConnectorConfigRequest {
+  string id = 1;
+  string name = 2;
+  string category = 3;
+  string description = 4;
+  google.protobuf.Struct config = 5;
+}
+
+message BeginConnectorAuthRequest {
+  string id = 1;
+  string redirect_uri = 2;
+}
+
+message BeginConnectorAuthResponse {
+  string authorization_url = 1;
+  string state = 2;
+}
+
+message CompleteConnectorAuthRequest {
+  string id = 1;
+  string state = 2;
+  string code = 3;
+}
+
+service Connectors {
+  rpc ListConnectors(ListConnectorsRequest) returns (ListConnectorsResponse);
+  rpc GetConnector(GetConnectorRequest) returns (Connector);
+  rpc EnableConnector(EnableConnectorRequest) returns (Connector);
+  rpc DisableConnector(DisableConnectorRequest) returns (Connector);
+  rpc UpsertConnectorConfig(UpsertConnectorConfigRequest) returns (Connector);
+  rpc BeginConnectorAuth(BeginConnectorAuthRequest) returns (BeginConnectorAuthResponse);
+  rpc CompleteConnectorAuth(CompleteConnectorAuthRequest) returns (Connector);
+}

@@ -1,0 +1,167 @@
+syntax = "proto3";
+
+package genius.runtime.v1;
+
+import "google/protobuf/struct.proto";
+
+// Thin BFF-facing shapes for the existing lunaya-flow-runtime catalog/runs.
+// Full fidelity remains in genai.*; this adapter is intentionally stable for the web.
+
+enum BuildStatus {
+  BUILD_STATUS_UNSPECIFIED = 0;
+  BUILD_STATUS_ACCEPTED = 1;
+  BUILD_STATUS_READY = 2;
+  BUILD_STATUS_FAILED = 3;
+}
+
+enum RuntimeRunStatus {
+  RUNTIME_RUN_STATUS_UNSPECIFIED = 0;
+  RUNTIME_RUN_STATUS_CREATED = 1;
+  RUNTIME_RUN_STATUS_RUNNING = 2;
+  RUNTIME_RUN_STATUS_FINISHED = 3;
+  RUNTIME_RUN_STATUS_FAILED = 4;
+}
+
+message RuntimeAction {
+  string name = 1;
+  string git_url = 2;
+  string branch = 3;
+  string description = 4;
+  string image_ref = 5;
+  BuildStatus build_status = 6;
+  google.protobuf.Struct input_schema = 7;
+  google.protobuf.Struct output_schema = 8;
+  string package_path = 9;
+}
+
+message BuildActionRequest {
+  string git_url = 1;
+  string branch = 2;
+}
+
+message BuildActionResponse {
+  string git_url = 1;
+  string branch = 2;
+  BuildStatus status = 3;
+}
+
+message GetActionRequest {
+  string name = 1;
+}
+
+message ListActionsRequest {}
+
+message ListActionsResponse {
+  repeated RuntimeAction actions = 1;
+}
+
+message DeleteActionRequest {
+  string name = 1;
+}
+
+message DeleteActionResponse {}
+
+message ActionBuildEvent {
+  string name = 1;
+  string git_url = 2;
+  string branch = 3;
+  string image_ref = 4;
+  BuildStatus status = 5;
+  string error = 6;
+  string package_path = 7;
+}
+
+message SubscribeBuildEventsRequest {}
+
+message RuntimeWorkflowDef {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+}
+
+message RuntimeWorkflowDefDetail {
+  RuntimeWorkflowDef def = 1;
+  google.protobuf.Struct detail = 2; // opaque for now; UI can treat as JSON
+}
+
+message CreateWorkflowDefRequest {
+  string name = 1;
+  string description = 2;
+  google.protobuf.Struct body = 3; // steps/bindings as JSON until shared types land
+}
+
+message GetWorkflowDefRequest {
+  string id = 1;
+  string name = 2;
+}
+
+message ListWorkflowDefsRequest {}
+
+message ListWorkflowDefsResponse {
+  repeated RuntimeWorkflowDef defs = 1;
+}
+
+message StartWorkflowRunRequest {
+  string def_id = 1;
+  string def_name = 2;
+}
+
+message RuntimeWorkflowRun {
+  string id = 1;
+  string def_id = 2;
+  RuntimeRunStatus status = 3;
+}
+
+message RuntimeWorkflowRunDetail {
+  RuntimeWorkflowRun run = 1;
+  google.protobuf.Struct detail = 2;
+}
+
+message GetWorkflowRunRequest {
+  string id = 1;
+}
+
+message DebugRunRequest {
+  string def_id = 1;
+  string def_name = 2;
+  string stop_after_step_id = 3;
+  map<string, google.protobuf.Struct> pinned_outputs = 4;
+}
+
+message DebugRunEvent {
+  string kind = 1;
+  RuntimeWorkflowRun run = 2;
+  string step_id = 3;
+  string step_name = 4;
+  string action = 5;
+  string step_status = 6;
+  google.protobuf.Struct output = 7;
+  string error = 8;
+  bool pinned = 9;
+}
+
+message ListReadyStepsRequest {
+  string run_id = 1;
+}
+
+message ListReadyStepsResponse {
+  google.protobuf.Struct detail = 1; // opaque ready steps payload from runtime
+}
+
+service RuntimeActions {
+  rpc BuildAction(BuildActionRequest) returns (BuildActionResponse);
+  rpc GetAction(GetActionRequest) returns (RuntimeAction);
+  rpc ListActions(ListActionsRequest) returns (ListActionsResponse);
+  rpc DeleteAction(DeleteActionRequest) returns (DeleteActionResponse);
+  rpc SubscribeBuildEvents(SubscribeBuildEventsRequest) returns (stream ActionBuildEvent);
+}
+
+service RuntimeWorkflows {
+  rpc CreateWorkflowDef(CreateWorkflowDefRequest) returns (RuntimeWorkflowDefDetail);
+  rpc GetWorkflowDef(GetWorkflowDefRequest) returns (RuntimeWorkflowDefDetail);
+  rpc ListWorkflowDefs(ListWorkflowDefsRequest) returns (ListWorkflowDefsResponse);
+  rpc StartWorkflowRun(StartWorkflowRunRequest) returns (RuntimeWorkflowRunDetail);
+  rpc GetWorkflowRun(GetWorkflowRunRequest) returns (RuntimeWorkflowRunDetail);
+  rpc DebugRun(DebugRunRequest) returns (stream DebugRunEvent);
+  rpc ListReadySteps(ListReadyStepsRequest) returns (ListReadyStepsResponse);
+}

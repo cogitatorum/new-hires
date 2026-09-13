@@ -1,0 +1,9 @@
+version: v2
+# Frontend / take-home: Connect-ES TypeScript clients.
+# Run from this repo root: `npx buf generate`
+plugins:
+  - local: protoc-gen-es
+    out: src/gen
+    opt:
+      - target=ts
+      - import_extension=.js

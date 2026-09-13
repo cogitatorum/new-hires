@@ -1,0 +1,146 @@
+syntax = "proto3";
+
+package genius.bus.v1;
+
+import "genius/common/v1/common.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+enum EventOrigin {
+  EVENT_ORIGIN_UNSPECIFIED = 0;
+  EVENT_ORIGIN_EXTERNAL = 1;
+  EVENT_ORIGIN_INTERNAL = 2;
+}
+
+enum EventRuleWhenKind {
+  EVENT_RULE_WHEN_KIND_UNSPECIFIED = 0;
+  EVENT_RULE_WHEN_KIND_DECISION = 1;
+  EVENT_RULE_WHEN_KIND_WORK_ITEM = 2;
+  EVENT_RULE_WHEN_KIND_EVENT = 3;
+}
+
+message BusEvent {
+  string id = 1;
+  string type = 2;
+  EventOrigin origin = 3;
+  string connector_id = 4;
+  string correlation_id = 5;
+  google.protobuf.Struct payload = 6;
+  map<string, string> attributes = 7;
+  google.protobuf.Timestamp created_at = 8;
+}
+
+message PublishEventRequest {
+  string type = 1;
+  EventOrigin origin = 2;
+  string connector_id = 3;
+  string correlation_id = 4;
+  google.protobuf.Struct payload = 5;
+  map<string, string> attributes = 6;
+}
+
+message GetEventRequest {
+  string id = 1;
+}
+
+message ListEventsRequest {
+  string type = 1;
+  EventOrigin origin = 2;
+  string correlation_id = 3;
+  genius.common.v1.PageRequest page = 4;
+}
+
+message ListEventsResponse {
+  repeated BusEvent events = 1;
+  genius.common.v1.PageResponse page = 2;
+}
+
+message SubscribeEventsRequest {
+  string type_prefix = 1;
+  string correlation_id = 2;
+}
+
+message EventChainNode {
+  string kind = 1;
+  string title = 2;
+  string subtitle = 3;
+  string ref_id = 4;
+}
+
+message EventChain {
+  string correlation_id = 1;
+  repeated EventChainNode nodes = 2;
+}
+
+message GetEventChainRequest {
+  string correlation_id = 1;
+}
+
+message EventRule {
+  string id = 1;
+  EventRuleWhenKind when_kind = 2;
+  string when_expression = 3;
+  string emit_type = 4;
+  string trigger_workflow_id = 5;
+  bool enabled = 6;
+  int64 fired_count = 7;
+  // Set from auth context on create; read-only for clients.
+  string org_id = 8;
+}
+
+message CreateEventRuleRequest {
+  EventRuleWhenKind when_kind = 1;
+  string when_expression = 2;
+  string emit_type = 3;
+  string trigger_workflow_id = 4;
+  bool enabled = 5;
+}
+
+message UpdateEventRuleRequest {
+  string id = 1;
+  EventRuleWhenKind when_kind = 2;
+  string when_expression = 3;
+  string emit_type = 4;
+  string trigger_workflow_id = 5;
+}
+
+message DeleteEventRuleRequest {
+  string id = 1;
+}
+
+message DeleteEventRuleResponse {}
+
+message GetEventRuleRequest {
+  string id = 1;
+}
+
+message ListEventRulesRequest {
+  genius.common.v1.PageRequest page = 1;
+}
+
+message ListEventRulesResponse {
+  repeated EventRule rules = 1;
+  genius.common.v1.PageResponse page = 2;
+}
+
+message SetEventRuleEnabledRequest {
+  string id = 1;
+  bool enabled = 2;
+}
+
+service EventBus {
+  rpc PublishEvent(PublishEventRequest) returns (BusEvent);
+  rpc GetEvent(GetEventRequest) returns (BusEvent);
+  rpc ListEvents(ListEventsRequest) returns (ListEventsResponse);
+  rpc SubscribeEvents(SubscribeEventsRequest) returns (stream BusEvent);
+  rpc GetEventChain(GetEventChainRequest) returns (EventChain);
+}
+
+service EventRules {
+  rpc CreateEventRule(CreateEventRuleRequest) returns (EventRule);
+  rpc UpdateEventRule(UpdateEventRuleRequest) returns (EventRule);
+  rpc DeleteEventRule(DeleteEventRuleRequest) returns (DeleteEventRuleResponse);
+  rpc GetEventRule(GetEventRuleRequest) returns (EventRule);
+  rpc ListEventRules(ListEventRulesRequest) returns (ListEventRulesResponse);
+  rpc SetEventRuleEnabled(SetEventRuleEnabledRequest) returns (EventRule);
+}
