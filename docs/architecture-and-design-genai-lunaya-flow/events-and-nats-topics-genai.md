@@ -61,6 +61,7 @@ External clients and the UI **never connect to NATS**. They use Connect RPCs on 
 | --- | --- | --- | --- | --- |
 | `events.platform.actions.build.v1` | Runtime `ActionsHandler` (ActionBuild progress) | `genai.actions.v1.ActionBuildEvent` (protojson). Header `Schema`=same. | BFF `RuntimeActions.SubscribeBuildEvents`; any runtime `Events.Subscribe` client | Build progress subject |
 | `events.platform.workflows.run.v1` | Runtime `WorkflowsHandler` (Argo run lifecycle) | `genai.workflows.v1.WorkflowRunEvent` (protojson) | No dedicated BFF consumer in-repo; consume via runtime `Events.Subscribe` or a custom durable | Kinds: RUN\_STARTED, STEP\_\*, RUN\_FINISHED, RUN\_FAILED |
+| `events.platform.workflows.run.logs.v1` | Reserved (Fluent Bit / log shipper; not wired yet) | TBD log chunk payload | Agents/UI via future BFF subscribe gated by topic ACL | Constant `SubjectWorkflowsRunLogs` |
 
 ### 3.3 Product org bus subjects
 
@@ -103,16 +104,42 @@ Helper `PublishToDLQ` publishes to `dlq.{originalSubject}` with header `Original
 
 ### 4.2 At the BFF (Casbin + JWT org)
 
-Product EventBus / EventRules go through Connect. JWT carries `OrgID`; subjects are always under that org.
+Product EventBus / EventRules go through Connect. JWT carries `OrgID`; subjects are always under that org for the org bus.
+
+#### Capability roots (coarse)
 
 | **Permission** | **RPC / surface** | **Roles** |
 | --- | --- | --- |
-| `events.publish` | `EventBus.PublishEvent` | owner, admin, operator |
-| `events.read` | GetEvent, ListEvents, SubscribeEvents, GetEventChain; EventRules Get/List | owner, admin, operator, **viewer** |
+| `events.publish` | Org-bus publish (concrete `events.org.{orgId}.bus.{type}`) | owner, admin, operator |
+| `events.read` | Org-bus list/get/subscribe (`events.org.{orgId}.>`) | owner, admin, operator, **viewer** |
 | `event_rules.write` | Create / Update / Delete / SetEnabled EventRule | owner, admin only |
-| `runtime.manage` | `RuntimeActions.SubscribeBuildEvents` (filters platform build subject) | owner, admin |
+| `runtime.manage` | Still allows `SubscribeBuildEvents` (admin path) | owner, admin |
 
-**Approver** has neither `events.read` nor `events.publish`.
+`events.read` / `events.publish` do **not** grant platform subjects (`events.platform.…`).
+
+#### Topic Role paths (NATS-mirror)
+
+Role permissions may also use a **separate** grammar (never mixed into resource path compilation):
+
+```text
+topic.<nats.subject.or.filter>.<read|publish>
+```
+
+- Prefix `topic.` is required (Casbin object uses `topic:` + subject).
+- NATS wildcards in the subject: `*` (one token), `>` (rest; must be final subject token).
+- Subscribe requests may pass a **wildcard filter**; authz allows only if the grant **covers** the filter (filter ⊆ grant).
+
+Examples: `topic.events.platform.workflows.run.>.read`, `topic.events.platform.workflows.run.logs.v1.read`, `topic.events.org.*.bus.>.read`.
+
+| **Surface** | **Authz** |
+| --- | --- |
+| `EventBus` publish/list/subscribe/get | Capability org-bus **or** matching `topic.…` grant |
+| `SubscribeBuildEvents` | `topic.events.platform.actions.build.v1.read` **or** `runtime.manage` |
+| Agent seed | `topic.events.platform.workflows.run.>.read` (run + future logs) |
+
+`GetResourceTree` returns `topic_permission_hints` with example strings for IAM UI.
+
+**Approver** has neither `events.read` nor `events.publish` nor platform topic grants.
 
 Domain publishers inside the BFF (publish workflow, webhook, credentials, rules) use the BFF’s NATS client directly — they are not gated by `events.publish` on each emit; callers are gated by the RPC that triggers them (e.g. publish workflow authz).
 
@@ -121,8 +148,8 @@ Domain publishers inside the BFF (publish workflow, webhook, credentials, rules)
 | **Consumer** | **Filter** | **Who** | **Auth model** |
 | --- | --- | --- | --- |
 | `bff-event-rules` | `events.org.>` (all orgs) | BFF EventRules evaluator | Same shared NATS user; rule rows are org-scoped in Postgres |
-| Ephemeral EventBus subscribe/list | `events.org.{jwtOrgId}.>` | BFF on behalf of user | Casbin `events.read` + JWT org |
-| SubscribeBuildEvents | `events.platform.actions.build.v1` | BFF on behalf of user | Casbin `runtime.manage` |
+| Ephemeral EventBus subscribe/list | `events.org.{jwtOrgId}.>` | BFF on behalf of user | `events.read` **or** covering `topic.…` grant + JWT org |
+| SubscribeBuildEvents | `events.platform.actions.build.v1` | BFF on behalf of user | Topic grant **or** `runtime.manage` |
 
 ### 4.4 Runtime `genai.events.v1.Events/Subscribe`
 
@@ -150,7 +177,7 @@ The runtime daemon Subscribe RPC takes an arbitrary JetStream filter subject and
 ## 7. Known gaps (as-built)
 
 - No multi-tenant NATS ACLs — shared `genai` user.
-- No BFF subscriber for `events.platform.workflows.run.v1` yet.
+- Platform run logs subject reserved (`events.platform.workflows.run.logs.v1`); Fluent Bit shipper not wired yet.
 - List/GetEvent are not a durable Postgres event store (contrast older `aios.md` intent).
 - DLQ helper unused; schedule-started runs do not emit bus events (webhooks do).
 
