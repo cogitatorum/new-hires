@@ -60,7 +60,7 @@ External clients and the UI **never connect to NATS**. They use Connect RPCs on 
 | **Subject** | **Publisher** | **Schema / payload** | **Intended subscribers** | **Notes** |
 | --- | --- | --- | --- | --- |
 | `events.platform.actions.build.v1` | Runtime `ActionsHandler` (ActionBuild progress) | `genai.actions.v1.ActionBuildEvent` (protojson). Header `Schema`=same. | BFF `RuntimeActions.SubscribeBuildEvents`; any runtime `Events.Subscribe` client | Build progress subject |
-| `events.platform.workflows.run.v1` | Runtime `WorkflowsHandler` (Argo run lifecycle) | `genai.workflows.v1.WorkflowRunEvent` (protojson) | No dedicated BFF consumer in-repo; consume via runtime `Events.Subscribe` or a custom durable | Kinds: RUN\_STARTED, STEP\_\*, RUN\_FINISHED, RUN\_FAILED |
+| `events.platform.workflows.run.v1` | Runtime `WorkflowsHandler` (Argo run lifecycle) | `genai.workflows.v1.WorkflowRunEvent` (protojson) | BFF `RuntimeWorkflows.SubscribeRunEvents` gated by topic ACL | Kinds: RUN\_STARTED, STEP\_\*, RUN\_FINISHED, RUN\_FAILED |
 | `events.platform.workflows.run.logs.v1` | Fluent Bit (via runtime HTTP ingest) | `genai.workflows.v1.WorkflowRunLogChunk` (protojson). Header `Schema`=same. | BFF `RuntimeWorkflows.SubscribeRunLogs` gated by topic ACL | Constant `SubjectWorkflowsRunLogs` |
 
 ### 3.3 Product org bus subjects
@@ -151,6 +151,7 @@ Domain publishers inside the BFF (publish workflow, webhook, credentials, rules)
 | Ephemeral EventBus subscribe/list | `events.org.{jwtOrgId}.>` | BFF on behalf of user | `events.read` **or** covering `topic.…` grant + JWT org |
 | SubscribeBuildEvents | `events.platform.actions.build.v1` | BFF on behalf of user | Topic grant **or** `runtime.manage` |
 | SubscribeRunLogs | `events.platform.workflows.run.logs.v1` | BFF on behalf of user | Topic grant **or** `runtime.manage` (agent seed covers `topic.events.platform.workflows.run.>.read`) |
+| SubscribeRunEvents | `events.platform.workflows.run.v1` | BFF on behalf of user | Topic grant **or** `runtime.manage` (same agent covering grant) |
 
 ### 4.4 Runtime `genai.events.v1.Events/Subscribe`
 
@@ -162,6 +163,7 @@ The runtime daemon Subscribe RPC takes an arbitrary JetStream filter subject and
 | --- | --- | --- |
 | `genius.runtime.v1.RuntimeActions` | `SubscribeBuildEvents` | Stream ActionBuildEvent from platform build subject |
 | `genius.runtime.v1.RuntimeWorkflows` | `SubscribeRunLogs` | Stream WorkflowRunLogChunk from platform run logs subject (optional `run_id` filter) |
+| `genius.runtime.v1.RuntimeWorkflows` | `SubscribeRunEvents` | Stream WorkflowRunEvent from platform run lifecycle subject (optional `run_id` filter) |
 | `genius.bus.v1.EventBus` | `PublishEvent` | Publish to org bus subject |
 |  | `GetEvent` / `ListEvents` | Ephemeral scan of recent org messages (not a durable event store; limited pull) |
 |  | `SubscribeEvents` | Stream org wildcard; optional type / correlation filters in-process |
@@ -177,7 +179,7 @@ The runtime daemon Subscribe RPC takes an arbitrary JetStream filter subject and
 - RBAC seed: `web/internal/rbac/rbac.go`
 - Helm: `k8s/helm/genai-platform` (NATS + auth secret), `genai-web` / `genai-runtime` (Fluent Bit DaemonSet + ingest)
 - Runtime log ingest: `runtime/daemon/services/runlogs_ingest.go`
-- BFF SubscribeRunLogs: `web/internal/services/{runtime,bus,deps}.go`
+- BFF SubscribeRunLogs / SubscribeRunEvents: `web/internal/services/{runtime,bus,deps}.go`
 
 ## 7. Known gaps (as-built)
 
